@@ -1,0 +1,11 @@
+[Unit]
+Description=Timer minute pour surveillance stock multi-pages
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+Persistent=true
+Unit=stock-monitor.service
+
+[Install]
+WantedBy=timers.target
+

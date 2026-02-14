@@ -1,0 +1,45 @@
+{
+  "targets": [
+    {
+      "id": "hotas4-aerosoft",
+      "name": "Thrustmaster T.Flight Hotas 4 (Aerosoft)",
+      "url": "https://www.aerosoft.com/fr/boutique/flight/hardware/joysticks/2197/thrustmaster-t.flight-hotas-4",
+      "out_of_stock_terms": [
+        "BACK IN STOCK SOON",
+        "Rupture de stock",
+        "Out of stock"
+      ],
+      "schedule": {
+        "mode": "hourly",
+        "interval_seconds": 3600
+      },
+      "emails_on_out_of_stock": [
+        "destinataire-out@example.com"
+      ],
+      "emails_on_in_stock": [
+        "destinataire-in@example.com"
+      ],
+      "notify_on_same_state": false
+    },
+    {
+      "id": "example-daily",
+      "name": "Exemple verifie une fois par jour",
+      "url": "https://example.com/product-page",
+      "out_of_stock_terms": [
+        "Out of stock",
+        "Rupture de stock"
+      ],
+      "schedule": {
+        "mode": "daily",
+        "time": "09:30"
+      },
+      "emails_on_out_of_stock": [
+        "ops@example.com"
+      ],
+      "emails_on_in_stock": [
+        "sales@example.com"
+      ],
+      "notify_on_same_state": false
+    }
+  ]
+}

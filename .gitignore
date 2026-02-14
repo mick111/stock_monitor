@@ -1,0 +1,15 @@
+# Environnements locaux (secrets / machine-specific)
+*.env
+!*.env.example
+monitor_targets.json
+monitor_state.json
+monitor_state.json.tmp
+
+# Logs
+*.log
+*.log.*
+
+# Python cache / bytecode
+__pycache__/
+*.pyc
+*.pyo

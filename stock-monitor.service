@@ -1,0 +1,14 @@
+[Unit]
+Description=Surveillance stock multi-pages (run scheduler tick)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/pi/Projects/hotas_stocks
+EnvironmentFile=-/home/pi/Projects/hotas_stocks/monitor.env
+EnvironmentFile=-/home/pi/Projects/hotas_stocks/smtp.env
+ExecStart=/home/pi/Projects/hotas_stocks/run_monitor_once.sh
+User=pi
+Group=pi
+

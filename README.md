@@ -38,6 +38,8 @@ Le script principal:
 
 Le service systemd est declenche chaque minute via timer. Le script decide ensuite quelles pages sont dues selon leur `schedule`.
 
+Par defaut, les chemins de `monitor.env` peuvent rester relatifs (`monitor.log`, `monitor_targets.json`, `monitor_state.json`) et sont resolus depuis le dossier du script.
+
 ## Activation systemd
 
 Depuis le dossier du projet:
@@ -55,3 +57,6 @@ Verification:
 systemctl status stock-monitor.timer
 systemctl status stock-monitor.service
 ```
+
+Note: le service pointe vers `/home/pi/Projects/stock_monitor`.
+Si vous renommez le dossier projet, mettez aussi a jour `stock-monitor.service`.

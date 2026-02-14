@@ -11,12 +11,23 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
 
-LOG_FILE = os.environ.get("LOG_FILE", "monitor.log")
+PROJECT_DIR = Path(__file__).resolve().parent
+
+
+def resolve_project_path(env_var_name: str, default_relative_path: str) -> Path:
+    raw_value = (os.environ.get(env_var_name) or default_relative_path).strip()
+    path = Path(raw_value).expanduser()
+    if not path.is_absolute():
+        path = PROJECT_DIR / path
+    return path
+
+
+LOG_FILE = resolve_project_path("LOG_FILE", "monitor.log")
 LOG_MAX_BYTES = int(os.environ.get("LOG_MAX_BYTES", str(5 * 1024 * 1024)))
 LOG_BACKUP_COUNT = int(os.environ.get("LOG_BACKUP_COUNT", "5"))
 
-MONITOR_CONFIG_FILE = os.environ.get("MONITOR_CONFIG_FILE", "monitor_targets.json")
-MONITOR_STATE_FILE = os.environ.get("MONITOR_STATE_FILE", "monitor_state.json")
+MONITOR_CONFIG_FILE = resolve_project_path("MONITOR_CONFIG_FILE", "monitor_targets.json")
+MONITOR_STATE_FILE = resolve_project_path("MONITOR_STATE_FILE", "monitor_state.json")
 HTTP_TIMEOUT_SECONDS = int(os.environ.get("HTTP_TIMEOUT_SECONDS", "30"))
 
 SMTP_HOST = os.environ.get("SMTP_HOST", "")
@@ -346,8 +357,8 @@ def evaluate_target(
 
 
 def run_cycle(force_run: bool) -> int:
-    config_path = Path(MONITOR_CONFIG_FILE)
-    state_path = Path(MONITOR_STATE_FILE)
+    config_path = MONITOR_CONFIG_FILE
+    state_path = MONITOR_STATE_FILE
 
     try:
         config = load_monitor_config(config_path)

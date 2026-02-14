@@ -1,9 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
 ENV_FILES=(
-  "/home/pi/Projects/hotas_stocks/monitor.env"
-  "/home/pi/Projects/hotas_stocks/smtp.env"
+  "$SCRIPT_DIR/monitor.env"
+  "$SCRIPT_DIR/smtp.env"
 )
 
 for ENV_FILE in "${ENV_FILES[@]}"; do
@@ -15,4 +17,4 @@ for ENV_FILE in "${ENV_FILES[@]}"; do
   fi
 done
 
-/usr/bin/python3 /home/pi/Projects/hotas_stocks/monitor_stock.py "$@"
+exec /usr/bin/python3 "$SCRIPT_DIR/monitor_stock.py" "$@"

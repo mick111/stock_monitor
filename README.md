@@ -42,14 +42,23 @@ Par defaut, les chemins de `monitor.env` peuvent rester relatifs (`monitor.log`,
 
 ## Activation systemd
 
-Depuis le dossier du projet:
+Depuis le dossier du projet, option rapide:
 
 ```bash
-sudo cp stock-monitor.service /etc/systemd/system/
-sudo cp stock-monitor.timer /etc/systemd/system/
+bash install_systemd.sh
+```
+
+Ou manuellement:
+
+```bash
+PROJECT_DIR="$(pwd)"
+sudo ln -sfn "$PROJECT_DIR/stock-monitor.service" /etc/systemd/system/stock-monitor.service
+sudo ln -sfn "$PROJECT_DIR/stock-monitor.timer" /etc/systemd/system/stock-monitor.timer
 sudo systemctl daemon-reload
 sudo systemctl enable --now stock-monitor.timer
 ```
+
+`ln -sfn` remplace proprement une ancienne copie ou un ancien lien, ce qui permet de garder les unites systemd synchronisees avec les fichiers du projet.
 
 Verification:
 
@@ -58,5 +67,5 @@ systemctl status stock-monitor.timer
 systemctl status stock-monitor.service
 ```
 
-Note: le service pointe vers `/home/pi/Projects/stock_monitor`.
-Si vous renommez le dossier projet, mettez aussi a jour `stock-monitor.service`.
+Note: le service pointe vers `/home/mick111/Documents/stock_monitor`.
+Si vous renommez le dossier projet, mettez aussi a jour `stock-monitor.service`, puis relancez la commande `ln -sfn` pour recreer les liens.

@@ -5,10 +5,10 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=/home/pi/Projects/stock_monitor
-EnvironmentFile=-/home/pi/Projects/stock_monitor/monitor.env
-EnvironmentFile=-/home/pi/Projects/stock_monitor/smtp.env
-ExecStart=/home/pi/Projects/stock_monitor/run_monitor_once.sh
-User=pi
-Group=pi
+WorkingDirectory=/home/mick111/Documents/stock_monitor
+EnvironmentFile=-/home/mick111/Documents/stock_monitor/monitor.env
+EnvironmentFile=-/home/mick111/Documents/stock_monitor/smtp.env
+ExecStart=/home/mick111/Documents/stock_monitor/run_monitor_once.sh
+User=mick111
+Group=mick111
 

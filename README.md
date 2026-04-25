@@ -13,21 +13,19 @@ Moniteur de stock multi-pages avec notification email.
 
 Chaque entree de `targets` represente une page a surveiller:
 
-- `url`: URL du produit.
-- `out_of_stock_terms`: liste des termes qui signifient "hors stock".
+- `url`: URL a telecharger.
+- `in_stock_terms` (optionnel) **ou** `out_of_stock_terms` (optionnel) : ne pas remplir les deux en meme temps.
+  - **Detection negative (produits / billets indisponibles)** : ne renseigner que `out_of_stock_terms` (ex. "Rupture de stock", "Out of stock"). L'etat est *hors stock* si l'un des termes est present dans la page, sinon *en stock*.
+  - **Detection positive (annonce, ville, etc.)** : ne renseigner que `in_stock_terms` (ex. "Paris" pour un concert). L'etat est *en stock* si l'un des termes est present, sinon *hors stock* (en attente).
 - `schedule`: frequence de surveillance:
   - `{"mode": "hourly", "interval_seconds": 3600}`
   - `{"mode": "daily", "time": "09:30"}`
-- `emails_on_out_of_stock`: liste des emails a prevenir quand la page est hors stock.
-- `emails_on_in_stock`: liste des emails a prevenir quand la page est en stock.
+- `emails_on_out_of_stock`: destinataires quand l'etat est *hors stock* (dans chaque mode).
+- `emails_on_in_stock`: destinataires quand l'etat est *en stock*.
 - `notify_on_same_state`:
   - `false` = notifie seulement au changement d'etat.
   - `true` = notifie a chaque verification planifiee.
-
-Le script considere:
-
-- `out_of_stock` si au moins un terme de `out_of_stock_terms` est detecte.
-- sinon `in_stock`.
+- `enabled` (optionnel) : `false` pour desactiver temporairement une cible.
 
 ## Execution
 

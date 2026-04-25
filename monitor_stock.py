@@ -145,20 +145,35 @@ def load_monitor_config(path: Path) -> dict[str, Any]:
         if not isinstance(target, dict):
             raise ValueError(f"Target #{index}: format invalide.")
 
+        if target.get("enabled", True) is False:
+            continue
+
         target_name = str(target.get("name", "")).strip() or f"target_{index}"
         target_id = str(target.get("id", "")).strip() or f"target_{index}"
         url = str(target.get("url", "")).strip()
         if not url:
             raise ValueError(f"Target '{target_name}': 'url' est obligatoire.")
 
+        in_stock_terms = parse_string_list(
+            target.get("in_stock_terms"),
+            "in_stock_terms",
+            target_name,
+        )
         out_of_stock_terms = parse_string_list(
             target.get("out_of_stock_terms"),
             "out_of_stock_terms",
             target_name,
         )
-        if not out_of_stock_terms:
+        if in_stock_terms and out_of_stock_terms:
             raise ValueError(
-                f"Target '{target_name}': 'out_of_stock_terms' doit contenir au moins une valeur."
+                f"Target '{target_name}': remplir soit 'in_stock_terms' "
+                f"soit 'out_of_stock_terms', pas les deux a la fois."
+            )
+        if not in_stock_terms and not out_of_stock_terms:
+            raise ValueError(
+                f"Target '{target_name}': fournir au moins une entree dans "
+                f"'in_stock_terms' (detection positive) ou dans "
+                f"'out_of_stock_terms' (detection negative)."
             )
 
         schedule = parse_schedule(target.get("schedule"), target_name)
@@ -179,12 +194,18 @@ def load_monitor_config(path: Path) -> dict[str, Any]:
                 "id": target_id,
                 "name": target_name,
                 "url": url,
+                "in_stock_terms": in_stock_terms,
                 "out_of_stock_terms": out_of_stock_terms,
                 "schedule": schedule,
                 "emails_on_out_of_stock": emails_on_out_of_stock,
                 "emails_on_in_stock": emails_on_in_stock,
                 "notify_on_same_state": notify_on_same_state,
             }
+        )
+
+    if not targets:
+        raise ValueError(
+            "Aucune cible active: ajoutez une entree ou repassez 'enabled' a true."
         )
 
     return {"targets": targets}
@@ -276,8 +297,18 @@ def send_email(subject: str, body: str, recipients: list[str]) -> bool:
         return False
 
 
-def detect_stock_state(html: str, out_of_stock_terms: list[str]) -> tuple[str, str]:
+def detect_target_state(
+    html: str,
+    in_stock_terms: list[str],
+    out_of_stock_terms: list[str],
+) -> tuple[str, str]:
+    """Renvoie (etat, marqueur) : in_stock ou out_of_stock selon le mode cible."""
     lower_html = html.lower()
+    if in_stock_terms:
+        for marker in in_stock_terms:
+            if marker.lower() in lower_html:
+                return "in_stock", marker
+        return "out_of_stock", ""
     for marker in out_of_stock_terms:
         if marker.lower() in lower_html:
             return "out_of_stock", marker
@@ -320,13 +351,31 @@ def evaluate_target(
         target_state["last_check_at"] = now.isoformat(timespec="seconds")
         return False
 
-    current_state, marker = detect_stock_state(html, target["out_of_stock_terms"])
-    if current_state == "out_of_stock":
-        log(f"[{target_name}] HORS STOCK - terme detecte: {marker}")
-        recipients = target["emails_on_out_of_stock"]
+    current_state, marker = detect_target_state(
+        html,
+        target["in_stock_terms"],
+        target["out_of_stock_terms"],
+    )
+    if target["in_stock_terms"]:
+        if current_state == "in_stock":
+            log(f"[{target_name}] EN STOCK - terme positif detecte: {marker}")
+            recipients = target["emails_on_in_stock"]
+        else:
+            log(
+                f"[{target_name}] HORS STOCK - aucun terme positif "
+                f"({', '.join(target['in_stock_terms'])})"
+            )
+            recipients = target["emails_on_out_of_stock"]
     else:
-        log(f"[{target_name}] EN STOCK - aucun terme out_of_stock detecte")
-        recipients = target["emails_on_in_stock"]
+        if current_state == "out_of_stock":
+            log(f"[{target_name}] HORS STOCK - terme negatif detecte: {marker}")
+            recipients = target["emails_on_out_of_stock"]
+        else:
+            log(
+                f"[{target_name}] EN STOCK - aucun des termes hors stock "
+                f"({', '.join(target['out_of_stock_terms'])})"
+            )
+            recipients = target["emails_on_in_stock"]
 
     should_notify = target["notify_on_same_state"] or previous_state != current_state
     if should_notify:

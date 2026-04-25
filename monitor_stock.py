@@ -145,6 +145,9 @@ def load_monitor_config(path: Path) -> dict[str, Any]:
         if not isinstance(target, dict):
             raise ValueError(f"Target #{index}: format invalide.")
 
+        if target.get("enabled", True) is False:
+            continue
+
         target_name = str(target.get("name", "")).strip() or f"target_{index}"
         target_id = str(target.get("id", "")).strip() or f"target_{index}"
         url = str(target.get("url", "")).strip()
@@ -185,6 +188,11 @@ def load_monitor_config(path: Path) -> dict[str, Any]:
                 "emails_on_in_stock": emails_on_in_stock,
                 "notify_on_same_state": notify_on_same_state,
             }
+        )
+
+    if not targets:
+        raise ValueError(
+            "Aucune cible active: ajoutez une entree ou repassez 'enabled' a true."
         )
 
     return {"targets": targets}
